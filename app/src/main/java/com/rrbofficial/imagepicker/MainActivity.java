@@ -113,7 +113,10 @@ public class MainActivity extends AppCompatActivity {
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-
+                    if(result.getResultCode() == RESULT_OK)
+                    {
+                        imageView.setImageURI(image_uri);
+                    }
                 }
             });
 
