@@ -1,7 +1,11 @@
 package com.rrbofficial.imagepicker;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.Manifest;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -39,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     Button gallaryBtn;
 
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +55,16 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.imageView);
         gallaryBtn = findViewById(R.id.gallaryBtn);
         CameraBtn = findViewById(R.id.cameraBtn);
+
+        //TODO ask for permission of camera upon first launch of application
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_DENIED){
+                String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                requestPermissions(permission, 112);
+            }
+        }
+
 
         gallaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,10 +77,45 @@ public class MainActivity extends AppCompatActivity {
         CameraBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            == PackageManager.PERMISSION_DENIED){
+                        String[] permission = {Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                        requestPermissions(permission, 112);
+                    }
+                    else {
+                        openCamera();
+                    }
+                }
+                else {
+                    openCamera();
+                }
             }
         });
 
 
     }
+    Uri image_uri;
+    //TODO opens camera so that user can capture image
+    private void openCamera() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "New Picture");
+        values.put(MediaStore.Images.Media.DESCRIPTION, "From the Camera");
+        image_uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, image_uri);
+        cameraActivityResultLauncher.launch(cameraIntent);
+    }
+
+    //TODO capture the image using camera and display it
+    ActivityResultLauncher<Intent> cameraActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+
+                }
+            });
+
 }
+
