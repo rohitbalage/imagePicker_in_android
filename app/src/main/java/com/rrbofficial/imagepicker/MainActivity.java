@@ -25,9 +25,12 @@ public class MainActivity extends AppCompatActivity {
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                 Uri image_uri  =   result.getData().getData();
+                    if(result.getResultCode() == RESULT_OK)
+                    {
+                        Uri image_uri  =   result.getData().getData();
+                        imageView.setImageURI(image_uri);
+                    }
 
-                 imageView.setImageURI(image_uri);
                 }
             });
 
